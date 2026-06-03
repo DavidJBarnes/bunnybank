@@ -1,0 +1,11 @@
+{
+  "name": "BunnyBank Child",
+  "short_name": "BunnyBank",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#00C853",
+  "description": "BunnyBank child app",
+  "orientation": "portrait-primary",
+  "icons": []
+}

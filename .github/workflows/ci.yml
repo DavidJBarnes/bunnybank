@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  api-lint-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: bunnybank_test
+          POSTGRES_USER: bunnybank
+          POSTGRES_PASSWORD: bunnybank
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Lint (ruff)
+        run: ruff check app/ tests/
+      - name: Format check (ruff)
+        run: ruff format --check app/ tests/
+      - name: Test
+        env:
+          DATABASE_URL: postgresql+asyncpg://bunnybank:bunnybank@localhost:5432/bunnybank_test
+          JWT_SECRET: test-secret
+          FIREBASE_CREDENTIALS_FILE: /dev/null
+        run: pytest -v
+
+  parent-app-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: parent_app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.24"
+          channel: stable
+      - name: Analyze
+        run: flutter analyze
+      - name: Test
+        run: flutter test
+      - name: Build web
+        run: flutter build web
+
+  child-app-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: child_app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.24"
+          channel: stable
+      - name: Analyze
+        run: flutter analyze
+      - name: Test
+        run: flutter test
+      - name: Build APK
+        run: flutter build apk

@@ -1,0 +1,11 @@
+{
+  "name": "BunnyBank Parent",
+  "short_name": "BunnyBank",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#7C4DFF",
+  "description": "BunnyBank parent portal",
+  "orientation": "portrait-primary",
+  "icons": []
+}
