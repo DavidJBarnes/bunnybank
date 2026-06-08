@@ -1,0 +1,6 @@
+# Transport image for the parent app's static web build.
+# This image is never *run* — the deploy pulls it and `docker cp`s /web onto the
+# host, where host nginx serves it directly. (No runtime container, no port.)
+# Build context is parent_app/; `flutter build web` must have produced build/web first.
+FROM busybox:1.36
+COPY build/web /web
