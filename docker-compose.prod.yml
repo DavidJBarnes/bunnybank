@@ -1,0 +1,8 @@
+services:
+  api:
+    image: "IMAGE_PLACEHOLDER"
+    container_name: bunnybank-api
+    command: uvicorn app.main:app --host 127.0.0.1 --port 8005 --proxy-headers --forwarded-allow-ips=*
+    restart: unless-stopped
+    network_mode: host
+    env_file: /opt/bunnybank/.env
