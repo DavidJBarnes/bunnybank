@@ -6,3 +6,7 @@ services:
     restart: unless-stopped
     network_mode: host
     env_file: /opt/bunnybank/.env
+    volumes:
+      # Firebase Admin service-account key (host file, never in git) mounted
+      # read-only so the API can send FCM pushes. Path matches FIREBASE_CREDENTIALS_FILE.
+      - /opt/bunnybank/firebase-service-account.json:/run/firebase/service-account.json:ro
