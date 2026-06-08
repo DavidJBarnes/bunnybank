@@ -13,6 +13,9 @@ void main() async {
   await authService.tryAutoLogin();
 
   final notificationService = NotificationService();
+  // Register the device's FCM token with the API so the server can push the
+  // cha-ching (works before or after login; queued until authenticated).
+  notificationService.onToken = authService.setFcmToken;
   await notificationService.initialize();
 
   final audio = createPlatformAudio();

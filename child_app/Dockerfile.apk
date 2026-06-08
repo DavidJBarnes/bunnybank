@@ -1,0 +1,6 @@
+# Transport image for the built child APK. Never run — the deploy pulls it and
+# `docker cp`s the APK onto the host, where nginx serves it as a download.
+# Build context is child_app/; `flutter build apk --release` must have run first.
+FROM busybox:1.36
+COPY build/app/outputs/flutter-apk/app-release.apk /dist/bunnybank.apk
+COPY apk_landing/index.html /dist/index.html

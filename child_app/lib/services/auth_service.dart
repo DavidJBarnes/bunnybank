@@ -9,11 +9,28 @@ class AuthService extends ChangeNotifier {
   String? _childName;
   bool _loading = false;
 
+  String? _pendingFcmToken;
+
   String? get childId => _childId;
   String? get childName => _childName;
   bool get isAuthenticated => _childId != null;
   bool get loading => _loading;
   ApiService get api => _api;
+
+  /// Remember the latest FCM token and, if already logged in, register it now.
+  /// Called by NotificationService when a token is obtained/refreshed.
+  void setFcmToken(String token) {
+    _pendingFcmToken = token;
+    if (isAuthenticated) _sendFcmToken(token);
+  }
+
+  Future<void> _sendFcmToken(String token) async {
+    try {
+      await _api.post('/child/fcm-token', {'fcm_token': token});
+    } catch (_) {
+      // Best-effort: a failed registration shouldn't block the child using the app.
+    }
+  }
 
   Future<void> tryAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
@@ -24,6 +41,7 @@ class AuthService extends ChangeNotifier {
       _childId = childId;
       _childName = childName;
       _api.setToken(token);
+      if (_pendingFcmToken != null) _sendFcmToken(_pendingFcmToken!);
       notifyListeners();
     }
   }
@@ -43,6 +61,7 @@ class AuthService extends ChangeNotifier {
       await prefs.setString('child_id', childId);
       await prefs.setString('token', data['access_token']);
       await prefs.setString('child_name', data['child_name']);
+      if (_pendingFcmToken != null) _sendFcmToken(_pendingFcmToken!);
       notifyListeners();
     } finally {
       _loading = false;

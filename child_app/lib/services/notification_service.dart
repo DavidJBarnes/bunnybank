@@ -8,6 +8,13 @@ class NotificationService {
   BalanceService? _balanceService;
   bool _initialized = false;
 
+  String? _fcmToken;
+  String? get fcmToken => _fcmToken;
+
+  /// Called whenever an FCM token is obtained or refreshed, so the app can
+  /// register it with the API (which needs it to push the cha-ching).
+  void Function(String token)? onToken;
+
   final StreamController<Map<String, String>> _moneyController = StreamController.broadcast();
   Stream<Map<String, String>> get moneyStream => _moneyController.stream;
 
@@ -24,14 +31,20 @@ class NotificationService {
 
       final token = await messaging.getToken();
       if (token != null) {
+        _fcmToken = token;
         debugPrint('FCM Token: $token');
+        onToken?.call(token);
       }
+      messaging.onTokenRefresh.listen((t) {
+        _fcmToken = t;
+        onToken?.call(t);
+      });
 
       FirebaseMessaging.onMessage.listen(_handleMessage);
       FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
       _initialized = true;
     } catch (e) {
-      debugPrint('Firebase not available (expected in local dev): $e');
+      debugPrint('Firebase not available (expected in local dev / web): $e');
       _initialized = false;
     }
   }

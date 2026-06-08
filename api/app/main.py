@@ -24,7 +24,9 @@ class CORSEnsureMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         response = await call_next(request)
         if "access-control-allow-origin" not in response.headers:
-            response.headers["access-control-allow-origin"] = request.headers.get("origin", "http://localhost:5000")
+            response.headers["access-control-allow-origin"] = request.headers.get(
+                "origin", "http://localhost:5000"
+            )
             response.headers["access-control-allow-credentials"] = "true"
             response.headers["access-control-allow-methods"] = "*"
             response.headers["access-control-allow-headers"] = "*"

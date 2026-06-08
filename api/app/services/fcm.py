@@ -31,9 +31,25 @@ async def send_money_received_notification(
                 )
                 return
 
+        # Send a *notification* message (not data-only) with high-priority Android
+        # config targeting the "cha_ching" channel, so the device shows it and
+        # plays the cash-register sound even when the app is backgrounded or killed.
         message = messaging.Message(
-            data={k: str(v) for k, v in payload.items()},
             token=fcm_token,
+            notification=messaging.Notification(
+                title="Cha-ching! 🎉",
+                body=f"You got ${amount:.2f} for {reason_label}!",
+            ),
+            data={k: str(v) for k, v in payload.items()},
+            android=messaging.AndroidConfig(
+                priority="high",
+                notification=messaging.AndroidNotification(
+                    channel_id="cha_ching",
+                    sound="cha_ching",
+                    priority="max",
+                    default_sound=False,
+                ),
+            ),
         )
         response = messaging.send(message)
         logger.info("FCM sent: %s", response)
