@@ -88,7 +88,7 @@ jobs:
               "aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY",
               "echo === Pulling asset image ===",
               "docker pull $IMAGE",
-              "echo === Extracting static assets to host (atomic swap) ===",
+              "echo === Extracting static assets to host - atomic swap ===",
               "docker rm -f bb-parent-extract 2>/dev/null || true",
               "docker create --name bb-parent-extract $IMAGE",
               "rm -rf ${WEB_ROOT}.new && mkdir -p ${WEB_ROOT}.new",
